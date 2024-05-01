@@ -406,8 +406,49 @@ function isBracketsBalanced(str) {
  *   Date('2000-01-01 01:00:00.100'), Date('2015-01-02 03:00:05.000')  => '15 years ago'
  *
  */
-function timespanToHumanString() {
-  throw new Error('Not implemented');
+function timespanToHumanString(startDate, endDate) {
+  const diff = endDate - startDate;
+
+  if (diff <= 45 * 1000) {
+    return 'a few seconds ago';
+  }
+  if (diff <= 90 * 1000) {
+    return 'a minute ago';
+  }
+  if (diff <= 45 * 60 * 1000) {
+    if ((diff / 60) % 1000 === 500) {
+      return `${Math.floor(diff / 60000)} minutes ago`;
+    }
+    return `${Math.round(diff / 60000)} minutes ago`;
+  }
+  if (diff <= 90 * 60 * 1000) {
+    return 'an hour ago';
+  }
+  if (diff <= 22 * 3600 * 1000) {
+    if ((diff / 3600) % 1000 === 500) {
+      return `${Math.floor(diff / 3600000)} hours ago`;
+    }
+    return `${Math.round(diff / 3600000)} hours ago`;
+  }
+  if (diff <= 36 * 3600 * 1000) {
+    return 'a day ago';
+  }
+  if (diff <= 25 * 24 * 3600 * 1000) {
+    if ((diff / 3600 / 24) % 1000 === 500) {
+      return `${Math.floor(diff / (24 * 3600000))} days ago`;
+    }
+    return `${Math.round(diff / (24 * 3600000))} days ago`;
+  }
+  if (diff <= 45 * 24 * 3600 * 1000) {
+    return 'a month ago';
+  }
+  if (diff <= 345 * 24 * 3600 * 1000) {
+    return `${Math.round(diff / (30 * 24 * 3600000))} months ago`;
+  }
+  if (diff <= 545 * 24 * 3600 * 1000) {
+    return 'a year ago';
+  }
+  return `${Math.floor(diff / (355 * 24 * 3600000))} years ago`;
 }
 
 /**
@@ -429,8 +470,8 @@ function timespanToHumanString() {
  *    365, 4  => '11231'
  *    365, 10 => '365'
  */
-function toNaryString() {
-  throw new Error('Not implemented');
+function toNaryString(num, n) {
+  return num.toString(n);
 }
 
 /**
@@ -445,8 +486,20 @@ function toNaryString() {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/webalizer/logs'] => '/'
  */
-function getCommonDirectoryPath() {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(pathes) {
+  const arr = pathes.map((item) => item.split('/'));
+
+  const result = arr[0];
+  for (let i = 1; i < arr.length; i += 1) {
+    for (let j = 0; j < arr[i].length; j += 1) {
+      if (arr[i][j] !== result[j]) {
+        result.splice(j);
+        break;
+      }
+    }
+  }
+
+  return result.length ? `${result.join('/')}/` : result.join('/');
 }
 
 /**
@@ -467,8 +520,19 @@ function getCommonDirectoryPath() {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct() {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const result = [];
+  for (let i = 0; i < m1.length; i += 1) {
+    result[i] = [];
+    for (let j = 0; j < m2[0].length; j += 1) {
+      let sum = 0;
+      for (let k = 0; k < m1[0].length; k += 1) {
+        sum += m1[i][k] * m2[k][j];
+      }
+      result[i][j] = sum;
+    }
+  }
+  return result;
 }
 
 /**
@@ -501,8 +565,62 @@ function getMatrixProduct() {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition() {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  for (let i = 0; i < 3; i += 1) {
+    if (
+      position[0][i] === 'X' &&
+      position[1][i] === 'X' &&
+      position[2][i] === 'X'
+    )
+      return 'X';
+    if (
+      position[0][i] === '0' &&
+      position[1][i] === '0' &&
+      position[2][i] === '0'
+    )
+      return '0';
+
+    if (
+      position[i][0] === 'X' &&
+      position[i][1] === 'X' &&
+      position[i][2] === 'X'
+    )
+      return 'X';
+    if (
+      position[i][0] === '0' &&
+      position[i][1] === '0' &&
+      position[i][2] === '0'
+    )
+      return '0';
+  }
+
+  if (
+    position[0][0] === 'X' &&
+    position[1][1] === 'X' &&
+    position[2][2] === 'X'
+  )
+    return 'X';
+  if (
+    position[0][2] === 'X' &&
+    position[1][1] === 'X' &&
+    position[2][0] === 'X'
+  )
+    return 'X';
+
+  if (
+    position[0][0] === '0' &&
+    position[1][1] === '0' &&
+    position[2][2] === '0'
+  )
+    return '0';
+  if (
+    position[0][2] === '0' &&
+    position[1][1] === '0' &&
+    position[2][0] === '0'
+  )
+    return '0';
+
+  return undefined;
 }
 
 module.exports = {
