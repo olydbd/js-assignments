@@ -158,26 +158,29 @@ function* breadthTraversalTree(root) {
  *   [ 0 ], [ 2, 4, 6, ... ]  => [ 0, 2, 4, 6, ... ]
  *   [ 1, 3, 5, ... ], [ -1 ] => [ -1, 1, 3, 5, ...]
  */
-function mergeSortedSequences(/* source1, source2 */) {
-  // const iterator1 = source1;
-  // const iterator2 = source2;
 
-  // let item1 = iterator1.next();
-  // let item2 = iterator2.next();
+function* mergeSortedSequences(source1, source2) {
+  const iterator1 = source1();
+  const iterator2 = source2();
 
-  // while (!item1.done || !item2.done) {
-  //   if (item1.done) {
-  //     yield item2.value;
-  //     item2 = iterator2.next();
-  //   } else if (item2.done || item1.value <= item2.value) {
-  //     yield item1.value;
-  //     item1 = iterator1.next();
-  //   } else {
-  //     yield item2.value;
-  //     item2 = iterator2.next();
-  //   }
-  // }
-  throw new Error('Not implemented');
+  let item1 = iterator1.next();
+  let item2 = iterator2.next();
+
+  while (!item1.done || !item2.done) {
+    if (item1.done) {
+      yield item2.value;
+      item2 = iterator2.next();
+    } else if (item2.done) {
+      yield item1.value;
+      item1 = iterator1.next();
+    } else if (item1.value < item2.value) {
+      yield item1.value;
+      item1 = iterator1.next();
+    } else {
+      yield item2.value;
+      item2 = iterator2.next();
+    }
+  }
 }
 
 module.exports = {
