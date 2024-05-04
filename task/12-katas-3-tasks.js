@@ -25,6 +25,7 @@
  *   'FUNCTION'  => false
  *   'NULL'      => false
  */
+
 function findStringInSnakingPuzzle() {
   throw new Error('Not implemented');
 }
@@ -41,8 +42,21 @@ function findStringInSnakingPuzzle() {
  *    'ab'  => 'ab','ba'
  *    'abc' => 'abc','acb','bac','bca','cab','cba'
  */
-function getPermutations() {
-  throw new Error('Not implemented');
+function* getPermutations(chars) {
+  if (chars.length === 1) {
+    yield chars;
+  } else {
+    for (let i = 0; i < chars.length; i += 1) {
+      const char = chars[i];
+      const remainingChars = chars.slice(0, i) + chars.slice(i + 1);
+      const subPermutations = getPermutations(remainingChars);
+      let subPermutation = subPermutations.next();
+      while (!subPermutation.done) {
+        yield char + subPermutation.value;
+        subPermutation = subPermutations.next();
+      }
+    }
+  }
 }
 
 /**
@@ -92,12 +106,35 @@ function UrlShortener() {
 }
 
 UrlShortener.prototype = {
-  encode(/* url */) {
-    throw new Error('Not implemented');
+  encode(url) {
+    let s = url
+      .split('')
+      .reduce(
+        (pv, cv) =>
+          pv +
+          (this.urlAllowedChars.indexOf(cv) < 10 ? '0' : '') +
+          this.urlAllowedChars.indexOf(cv),
+        ''
+      );
+    let answer = '';
+    if (s.length % 4 !== 0) s += '99';
+    while (s.length > 0) {
+      answer += String.fromCharCode(s.slice(0, 4));
+      s = s.slice(4);
+    }
+    return answer;
   },
 
-  decode(/* code */) {
-    throw new Error('Not implemented');
+  decode(code) {
+    return code.split('').reduce((pv, cv) => {
+      let pv2 = pv;
+      pv2 +=
+        this.urlAllowedChars[Math.floor(cv.charCodeAt(0) / 100)] +
+        (cv.charCodeAt(0) % 100 !== 99
+          ? this.urlAllowedChars[cv.charCodeAt(0) % 100]
+          : '');
+      return pv2;
+    }, '');
   },
 };
 

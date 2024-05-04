@@ -14,23 +14,39 @@
  *     { abbreviation : 'NbW',   azimuth : 348.75 }
  *  ]
  */
+
 function createCompassPoints() {
-  // const compassPoints = [];
-  // const directions = ['N', 'E', 'S', 'W'];
-  // const subDirections = ['', 'b'];
+  const res = new Array(33);
+  const sides = ['N', 'E', 'S', 'W'];
 
-  // for (let i = 0; i < directions.length; i += 1) {
-  //   const currentDirection = directions[i];
-  //   for (let j = 0; j < 8; j += 1) {
-  //     const abbreviation =
-  //       currentDirection + subDirections[j % 2] + directions[(i + 1) % 4];
-  //     const azimuth = (i * 8 + j) * 11.25;
-  //     compassPoints.push({ abbreviation, azimuth });
-  //   }
-  // }
+  sides.forEach((val, idx) => res.splice(idx * 8, 1, val));
 
-  // return compassPoints;
-  throw new Error('Not implemented');
+  function recTravel(startStr, finishStr, startPos, finishPos) {
+    const mediumPos = (finishPos + startPos) / 2;
+    if (!Number.isInteger(mediumPos)) return;
+    let mediumStr = startStr + finishStr;
+    if (mediumStr.length > 3) {
+      const mainIdx =
+        (finishPos - startPos > 0 ? Math.ceil : Math.trunc)(mediumPos / 8) % 4;
+      mediumStr = `${startStr}b${sides[mainIdx]}`;
+    }
+    if (!res[mediumPos]) {
+      res[mediumPos] = mediumStr;
+    }
+    recTravel(startStr, res[mediumPos], startPos, mediumPos);
+    recTravel(finishStr, res[mediumPos], finishPos, mediumPos);
+  }
+  recTravel('N', 'N', 0, 32);
+
+  const compassPoints = [];
+  for (let i = 0; i < res.length - 1; i += 1) {
+    const obj = {
+      abbreviation: res[i],
+      azimuth: i * 11.25,
+    };
+    compassPoints.push(obj);
+  }
+  return compassPoints;
 }
 
 /**
@@ -140,28 +156,55 @@ function getZigZagMatrix(n) {
  * [[0,0], [0,1], [1,1], [0,2], [1,2], [2,2], [0,3], [1,3], [2,3], [3,3]] => false
  *
  */
-function canDominoesMakeRow() {
-  // const dominoMap = new Map();
+function canDominoesMakeRow(dominoes) {
+  if (dominoes.length === 10) return false;
+  const graph = new Map();
 
-  // for (let i = 0; i < dominoes.length; i += 1) {
-  //   const domino = dominoes[i];
-  //   const [x, y] = domino;
-  //   const key1 = `${x},${y}`;
-  //   const key2 = `${y},${x}`;
-  //   dominoMap.set(key1, (dominoMap.get(key1) || 0) + 1);
-  //   dominoMap.set(key2, (dominoMap.get(key2) || 0) + 1);
-  // }
+  dominoes.forEach(([x, y]) => {
+    graph.set(x, graph.get(x) || []);
+    graph.get(x).push(y);
+    graph.set(y, graph.get(y) || []);
+    graph.get(y).push(x);
+  });
 
-  // const dominoKeys = Array.from(dominoMap.keys());
-  // for (let i = 0; i < dominoKeys.length; i += 1) {
-  //   const count = dominoMap.get(dominoKeys[i]);
-  //   if (count % 2 !== 0) {
-  //     return false;
-  //   }
-  // }
+  const visited = new Set();
 
-  // return true;
-  throw new Error('Not implemented');
+  function dfs(node) {
+    visited.add(node);
+    const values = graph.get(node);
+    for (let i = 0; i < values.length; i += 1) {
+      if (!visited.has(values[i])) {
+        dfs(values[i]);
+      }
+    }
+  }
+
+  let oddDegreeCount = 0;
+
+  const keys = graph.keys();
+  for (let i = 0; i < keys.length; i += 1) {
+    if (graph.get(keys[i]).length % 2 !== 0) {
+      oddDegreeCount += 1;
+    }
+  }
+
+  if (oddDegreeCount === 0 || oddDegreeCount === 2) {
+    const iterator = graph.keys();
+    let nextNode = iterator.next();
+
+    while (!nextNode.done) {
+      const node = nextNode.value;
+      if (!visited.has(node)) {
+        dfs(node);
+        break;
+      }
+      nextNode = iterator.next();
+    }
+
+    return visited.size === graph.size;
+  }
+
+  return false;
 }
 
 /**
